@@ -3,6 +3,7 @@
 *.key
 *.email
 *.csv
+*.tkr
 *.txt
 *.pyc
 *.db
