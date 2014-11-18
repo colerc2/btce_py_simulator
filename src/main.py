@@ -12,6 +12,7 @@ def read_file(filename):
         reader = csv.reader(file)
         for row in reader:
             placeholder = 0
+testing = 0
             #print row
 
 
