@@ -17,6 +17,9 @@ SELL = 7
 UPDATED = 8
 SERVER_TIME = 9
 
+CHANGE_LOW = 0
+CHANGE_HIGH = 1
+
 class SignalAnalysis():
     def __init__(self, pair, training_length, directory):
         self.pair = pair
@@ -33,6 +36,11 @@ class SignalAnalysis():
         self.ticker_data = []
         ticker_data = self.read_csvs(self.filenames, training_length)
         print len(self.ticker_data)
+        
+        #crunch numbers
+        print 'start'
+        change_in_future_2880 = self.change_in_future(2880)
+        print 'end'
 
     #read data
     def read_file(self, filename):
@@ -57,6 +65,22 @@ class SignalAnalysis():
             file_data = self.read_file(file)
             self.ticker_data += (file_data[0])
             print 'Added file %s, %d lines' % (file,file_data[1])
+
+    def change_in_future(self, time_period):
+        change = []
+        low = [0] * (len(self.ticker_data)-time_period)
+        high = [0] * (len(self.ticker_data)-time_period)
+        for ii in range(len(self.ticker_data)-time_period):
+            #indices = ((ii+1):(ii+time_period))
+            changes = [float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]]
+            changes[:] = [x - self.ticker_data[ii] for x in changes]
+            changes[:] = [x / self.ticker_data[ii] for x in changes]
+                       #changes -self.ticker_data[ii])/self.ticker_data[ii]
+            low[ii] = min(changes)
+            high[ii] = max(changes)
+        change.append(low)
+        change.append(high)
+        return change
 
 if __name__ == '__main__':
     argv = sys.argv
