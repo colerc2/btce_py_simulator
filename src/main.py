@@ -5,24 +5,34 @@ import csv
 import os
 import datetime
 
+#stuff
+HIGH = 0
+LOW = 1
+AVG = 2
+VOL = 3
+VOL_CUR = 4
+LAST = 5
+BUY = 6
+SELL = 7
+UPDATED = 8
+SERVER_TIME = 9
 
 #read data
 def read_file(filename):
-    print filename
+    num_lines = sum(1 for line in open(filename))
+    day = []
     with open(filename, 'rb') as file:
-        print 'called'
         reader = csv.reader(file)
         for row in reader:
-            placeholder = 0
-            testing = 0
-            print row
-
+            day.append(row)
+    return (day, num_lines)
+            
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
         
-    if len(argv) < 1:
+    if len(argv) < 2:
         print 'now you fucked up'
         print 'you have fucked up'
         print 'now you fucked up'
@@ -30,6 +40,7 @@ def main(argv=None):
 
     #get pair from command line
     pair = argv[1]
+    training_length = int(argv[2])
     directory = 'ticker_data/' + pair
         
     #get list of dates from 3/06 to 11/17
@@ -42,12 +53,14 @@ def main(argv=None):
         filename = pair + '_' + str(start_date.year) + '_' + str('%02d' % start_date.month) + '_' + str('%02d' % start_date.day) + '.tkr'
         if os.path.isfile(directory + '/' + filename):
             filenames.append(directory + '/' + filename)
-            #print 'cannot find file: %s' % filename
-            #read_file(directory + '/' + filename)
         start_date = start_date + datetime.timedelta(days=1)
 
-    for file in filenames:
-        read_file(file)
+    #read csvs
+    ticker_data = []
+    for file in filenames[0:training_length]:
+        file_data = read_file(file)
+        ticker_data.append(file_data[0])
+        print 'Added file %s, %d lines' % (filename,file_data[1])
     
     #get list of directories
     # for (dirpath, dirnames, filenames) in os.walk(directory):
