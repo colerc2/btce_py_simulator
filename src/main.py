@@ -4,6 +4,7 @@ import sys
 import csv
 import os
 import datetime
+import numpy
 
 #stuff
 HIGH = 0
@@ -72,9 +73,11 @@ class SignalAnalysis():
         high = [0] * (len(self.ticker_data)-time_period)
         for ii in range(len(self.ticker_data)-time_period):
             #indices = ((ii+1):(ii+time_period))
-            changes = [float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]]
-            changes[:] = [x - self.ticker_data[ii] for x in changes]
-            changes[:] = [x / self.ticker_data[ii] for x in changes]
+            changes = numpy.array([float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]])
+            changes = changes - self.ticker_data[ii]
+            changes = changes / self.ticker_data[ii]
+            #changes[:] = [x - self.ticker_data[ii] for x in changes]
+            #changes[:] = [x / self.ticker_data[ii] for x in changes]
                        #changes -self.ticker_data[ii])/self.ticker_data[ii]
             low[ii] = min(changes)
             high[ii] = max(changes)
