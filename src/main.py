@@ -72,18 +72,14 @@ class SignalAnalysis():
 
     def change_in_future(self, time_period):
         change = []
-        low = [0] * (len(self.ticker_data)-time_period)
-        high = [0] * (len(self.ticker_data)-time_period)
-        for ii in range(len(self.ticker_data)-time_period):
-            #indices = ((ii+1):(ii+time_period))
-            #changes = ([float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]])
-            changes = (self.ticker_data[(ii+1):(ii+time_period),LAST])
-            changes = changes.astype(numpy.float64)
-            changes = changes - float(self.ticker_data[ii][LAST])
-            changes = changes / float(self.ticker_data[ii][LAST])
-            #changes[:] = [x - self.ticker_data[ii] for x in changes]
-            #changes[:] = [x / self.ticker_data[ii] for x in changes]
-                       #changes -self.ticker_data[ii])/self.ticker_data[ii]
+        low = [0] * (len(self.ticker_data)-time_period+1)
+        high = [0] * (len(self.ticker_data)-time_period+1)
+        temp_last_array = self.ticker_data[:,LAST]
+        temp_last_array = temp_last_array.astype(numpy.float64)
+        for ii in range(len(self.ticker_data)-time_period+1):
+            changes = temp_last_array[(ii):(ii+time_period-1)]
+            changes = changes - temp_last_array[ii]
+            changes = changes / temp_last_array[ii]#make it a percent relative to current value
             low[ii] = min(changes)
             high[ii] = max(changes)
         change.append(low)
