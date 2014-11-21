@@ -5,6 +5,7 @@ import csv
 import os
 import datetime
 import numpy
+import matplotlib.pyplot as plt
 
 #stuff
 HIGH = 0
@@ -44,6 +45,8 @@ class SignalAnalysis():
         #crunch numbers
         print 'start'
         change_in_future_2880 = self.change_in_future(2880)
+        plt.plot(range(change_in_future_2880),change_in_future_2880)
+        plt.show()
         print 'end'
 
     #read data
