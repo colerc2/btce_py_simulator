@@ -61,7 +61,7 @@ class SignalAnalysis():
         
         short = range(11,15)
         long_ = range(22,31)
-        sig = (5,16)
+        sig = range(5,16)
         period = range(10,100,10)
         macd_window = range(20,130,10)#what is this, i don't even know
 
@@ -72,7 +72,7 @@ class SignalAnalysis():
                 for kk in range(len(sig)):
                     for ll in range(len(period)):
                         for mm in range(len(macd_window)):
-                            print 'MACD(%d, %d, %d)x%d' % (short[ii], long_[jj], sig[kk], period[ll])
+                            #print 'MACD(%d, %d, %d)x%d' % (short[ii], long_[jj], sig[kk], period[ll])
                             macd, macd_line, signal_line = self.moving_average_convergence_divergence(last,
                             short[ii], long_[jj], sig[kk], period[ll])
                             delta_macd = [0].append(macd[1:] - macd[0:-1])
@@ -132,13 +132,44 @@ class SignalAnalysis():
                                         max_since_switch = 0
                                         min_since_switch = 0
                             #fuck start here
+                            profit_number, spread_thresh, sell_count, per_sale = self.calc_profit_spread(sell_change, sell_spread, 1)
+                            if profit_number != 0:
+                                print '\t\t',
+                            print 'MACD(%d, %d, %d)x%d, %d - %f, %f, %f, %f' % (short[ii], long_[jj], sig[kk], period[ll], macd_window[mm],profit_number, spread_thresh, sell_count, per_sale)
+
                             
                             
 
-    def calc_profit_spread(change_in_future, sell_spread, max_outliers):
+    def calc_profit_spread(self, change_in_future, sell_spread, max_outliers):
+        if len(sell_spread) == 0:
+            return (0,0,0,0)
         sell_spread = self.float_cast(sell_spread)
+        for item in sell_spread:
+            print item
         ix = sell_spread.argsort(sell_spread)
         ix = numpy.fliplr(ix)
+        sell_spread = sell_spread[ix]
+        change_in_future = change_in_future[ix]
+
+        total_profit = 0
+        total_outliers = 0
+        slope = 0
+        count = 0
+        for ii in range(len(ix)):
+            if change_in_future[ii] < -.04:#why is this hardcodedTODO TODO TODO
+                total_profit = total_profit + change_in_future[ii]
+                count = count + 1
+            else:
+                if ii == 1:
+                    slope = 0
+                else:
+                    slope = sell_spread[ii-1]
+                break
+        if count == 0:
+            count = -1
+        per_sale = total_profit/count
+        return (total_profit, slope, count, per_sale)
+            
                             
     def exponential_moving_average(self, data, alpha):
         maf = [0] * len(data)
