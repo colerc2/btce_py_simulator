@@ -35,22 +35,54 @@ class SignalAnalysis():
         self.create_filenames(self.start_date, self.end_date)
     
         #read csvs and convert to numpy arrays
+        print 'Reading in data...'
         self.ticker_data = []
         self.read_csvs(self.filenames, training_length)
         self.ticker_data = numpy.array(self.ticker_data)
-        print len(self.ticker_data)
-        #for row in self.ticker_data:
-        #    print row[LAST]
+        print '%s data points read.' % str(len(self.ticker_data))
         
         #crunch numbers
+        print 'Crunching some numbers...'
         change_in_future_2880 = self.change_in_future(2880)
         temp_last_array = self.ticker_data[:,LAST]
         temp_last_array = temp_last_array.astype(numpy.float64)
         self.make_future_change_plot(temp_last_array, change_in_future_2880)
-        #plt.plot(range(len(change_in_future_2880[0])),change_in_future_2880[0])
-        #plt.show()
-        print 'end'
+        print 'Done crunching'
 
+        #values for this run
+        short = range(11,15)
+        long = range(22,31)
+        sig = (5,16)
+        period = range(10,100,10)#what is this, i don't even know
+        macd_window = range(20,130,10)#what is this, i don't even know
+
+
+        last = float_cast(self.ticker_data(:,LAST))
+        for ii in short:
+            for jj in long:
+                for kk in sig:
+                    for ll in period:
+                        for mm in macd_window:
+                            
+        
+
+    def exponential_moving_average(data, alpha):
+        maf = [0] * len(data)
+        for ii in range(len(data)):
+            if ii == 1:
+                maf[ii] = data[ii]
+            else:
+                maf[ii] = alpha * data[ii] + (1-alpha)*maf[ii-1]
+        return maf
+                            
+    def moving_average_convergence_divergence(data, short, long, signal, delta_t):
+        short_emaf = self.exponential_moving_average(data, (2/((short+1)*delta_t)))
+        long_emaf = self.exponential_moving_average(data, (2/((long+1)*delta_t)))
+        macd_line = short_emaf - long_emaf
+        signal_line = self.exponential_moving_average(macd_line, (2/((signal+1) * delta_t)))
+        macd = macd_line - signal_line
+        return macd
+                            
 
     def float_cast(self, ary):
         ary = numpy.array(ary)
@@ -98,6 +130,7 @@ class SignalAnalysis():
         high = [0] * (len(self.ticker_data)-time_period+1)
         temp_last_array = self.ticker_data[:,LAST]
         temp_last_array = temp_last_array.astype(numpy.float64)
+        changes = [0] * (time_period-1)
         for ii in range(len(self.ticker_data)-time_period+1):
             changes = temp_last_array[(ii):(ii+time_period-1)]
             changes = changes - temp_last_array[ii]
