@@ -67,6 +67,43 @@ class SignalAnalysis():
                             macd, macd_line, signal_line = self.moving_average_convergence_divergence(last,
                             short[ii], long_[jj], sig[kk], period[ll])
                             delta_macd = [0].append(macd[1:] - macd[0:-1])
+
+                            #so many variables bro, you should probably make a struct or something man,
+                            #stop sucking at coding
+                            threshold = 0
+                            positive = False
+                            count_since_switch = 0
+                            sell_price = []
+                            sell_time = []
+                            sell_delta = []
+                            sell_change = []
+                            sell_index = []
+                            buy_price = []
+                            buy_time = []
+                            max_since_switch = []
+                            min_since_switch = []
+                            sell_spread = []
+                            sell_ongoing = 0
+                            buy_holdout_timer = 0
+                            
+                            #COPY PASTA-ING MOST OF THIS, PROBABLY WILL NEVER WORK
+                            for nn in range(len(macd)):
+                                if positive:
+                                    if(macd[nn] > 0):#if we're still positive
+                                        count_since_switch += 1
+                                    else:#if we've flipped to negative
+                                        #not sure what the first condition does, but the second condition checks
+                                        #to see if the macd filter has settled down yet
+                                        if((count_since_switch > threshold) and (nn > (period(ll) * long_[jj]))):
+                                            sell_price.append(last[nn])
+                                            sell_time.append(self.ticker_data[nn,UPDATED])
+                                            if nn > len(change_in_future_2880[0]):
+                                                sell_change.append(0)
+                                            else:
+                                                sell_change.append(change_in_future_2880[0][nn])
+                                            sell_delta.append(delta_macd[nn])
+                                            
+                                            
         
 
     def exponential_moving_average(self, data, alpha):
@@ -76,7 +113,7 @@ class SignalAnalysis():
             if ii == 1:
                 maf[ii] = data[ii]
             else:
-                maf[ii] = alpha * data[ii] + (1-alpha)*maf[ii-1]
+                maf[ii] = (alpha * data[ii]) + ((1-alpha) * maf[ii-1])
         return maf
                             
     def moving_average_convergence_divergence(self, data, short, long_, signal, delta_t):
