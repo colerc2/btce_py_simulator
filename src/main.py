@@ -113,9 +113,24 @@ class SignalAnalysis():
                                     if macd[nn] < 0:
                                         min_since_switch = min(min_since_switch, macd[nn])
                                         count_since_switch += 1
-                                            
-        
+                                    else:
+                                        if sell_ongoing:
+                                            buy_price.append(last[nn])
+                                            buy_time.append(self.ticker_data[nn,UPDATED])
+                                            sell_ongoing = False
+                                        count_since_switch = 0
+                                        positive = True
+                                        max_since_switch = 0
+                                        min_since_switch = 0
+                            #fuck start here
+                            
+                            
 
+    def calc_profit_spread(change_in_future, sell_spread, max_outliers):
+        sell_spread = self.float_cast(sell_spread)
+        ix = sell_spread.argsort(sell_spread)
+        ix = numpy.fliplr(ix)
+                            
     def exponential_moving_average(self, data, alpha):
         maf = [0] * len(data)
         maf = self.float_cast(maf)
