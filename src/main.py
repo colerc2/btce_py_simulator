@@ -33,10 +33,13 @@ class SignalAnalysis():
         self.filenames = []
         self.create_filenames(self.start_date, self.end_date)
     
-        #read csvs
+        #read csvs and convert to numpy arrays
         self.ticker_data = []
-        ticker_data = self.read_csvs(self.filenames, training_length)
+        self.read_csvs(self.filenames, training_length)
+        self.ticker_data = numpy.array(self.ticker_data)
         print len(self.ticker_data)
+        #for row in self.ticker_data:
+        #    print row[LAST]
         
         #crunch numbers
         print 'start'
@@ -73,9 +76,11 @@ class SignalAnalysis():
         high = [0] * (len(self.ticker_data)-time_period)
         for ii in range(len(self.ticker_data)-time_period):
             #indices = ((ii+1):(ii+time_period))
-            changes = numpy.array([float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]])
-            changes = changes - self.ticker_data[ii]
-            changes = changes / self.ticker_data[ii]
+            #changes = ([float(x) for x in self.ticker_data[(ii+1):(ii+time_period)][LAST]])
+            changes = (self.ticker_data[(ii+1):(ii+time_period),LAST])
+            changes = changes.astype(numpy.float64)
+            changes = changes - float(self.ticker_data[ii][LAST])
+            changes = changes / float(self.ticker_data[ii][LAST])
             #changes[:] = [x - self.ticker_data[ii] for x in changes]
             #changes[:] = [x / self.ticker_data[ii] for x in changes]
                        #changes -self.ticker_data[ii])/self.ticker_data[ii]
