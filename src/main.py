@@ -83,7 +83,7 @@ class SignalAnalysis():
                             max_since_switch = []
                             min_since_switch = []
                             sell_spread = []
-                            sell_ongoing = 0
+                            sell_ongoing = False
                             buy_holdout_timer = 0
                             
                             #COPY PASTA-ING MOST OF THIS, PROBABLY WILL NEVER WORK
@@ -102,7 +102,17 @@ class SignalAnalysis():
                                             else:
                                                 sell_change.append(change_in_future_2880[0][nn])
                                             sell_delta.append(delta_macd[nn])
-                                            
+                                            sell_index.append(nn)
+                                            sell_spread.append(max(macd[max(0,(nn-macd_window[mm])):nn]))
+                                            sell_ongoing = True
+                                        positive = False
+                                        count_since_switch = 0
+                                        max_since_switch = 0
+                                        min_since_switch = 0
+                                else:
+                                    if macd[nn] < 0:
+                                        min_since_switch = min(min_since_switch, macd[nn])
+                                        count_since_switch += 1
                                             
         
 
