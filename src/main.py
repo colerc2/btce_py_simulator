@@ -51,23 +51,27 @@ class SignalAnalysis():
 
         #values for this run
         short = range(11,15)
-        long = range(22,31)
+        long_ = range(22,31)
         sig = (5,16)
         period = range(10,100,10)#what is this, i don't even know
         macd_window = range(20,130,10)#what is this, i don't even know
 
 
-        last = float_cast(self.ticker_data(:,LAST))
-        for ii in short:
-            for jj in long:
-                for kk in sig:
-                    for ll in period:
-                        for mm in macd_window:
-                            
+        last = self.float_cast(self.ticker_data[:,LAST])
+        for ii in range(len(short)):
+            for jj in range(len(long_)):
+                for kk in range(len(sig)):
+                    for ll in range(len(period)):
+                        for mm in range(len(macd_window)):
+                            print 'MACD(%d, %d, %d)x%d' % (short[ii], long_[jj], sig[kk], period[ll])
+                            macd, macd_line, signal_line = self.moving_average_convergence_divergence(last,
+                            short[ii], long_[jj], sig[kk], period[ll])
+                            delta_macd = [0].append(macd[1:] - macd[0:-1])
         
 
-    def exponential_moving_average(data, alpha):
+    def exponential_moving_average(self, data, alpha):
         maf = [0] * len(data)
+        maf = self.float_cast(maf)
         for ii in range(len(data)):
             if ii == 1:
                 maf[ii] = data[ii]
@@ -75,13 +79,13 @@ class SignalAnalysis():
                 maf[ii] = alpha * data[ii] + (1-alpha)*maf[ii-1]
         return maf
                             
-    def moving_average_convergence_divergence(data, short, long, signal, delta_t):
+    def moving_average_convergence_divergence(self, data, short, long_, signal, delta_t):
         short_emaf = self.exponential_moving_average(data, (2/((short+1)*delta_t)))
-        long_emaf = self.exponential_moving_average(data, (2/((long+1)*delta_t)))
+        long_emaf = self.exponential_moving_average(data, (2/((long_+1)*delta_t)))
         macd_line = short_emaf - long_emaf
         signal_line = self.exponential_moving_average(macd_line, (2/((signal+1) * delta_t)))
         macd = macd_line - signal_line
-        return macd
+        return (macd, macd_line, signal_line)
                             
 
     def float_cast(self, ary):
@@ -98,7 +102,7 @@ class SignalAnalysis():
         plt.plot(range(len(tkr)), tkr, range(len(low)), low, range(len(high)), high, linewidth=2.0)
         plt.grid(True)
         plt.legend(['tkr', 'low', 'high'])
-        plt.show()
+        plt.show(block=False)
         
     #read data
     def read_file(self, filename):
