@@ -43,12 +43,31 @@ class SignalAnalysis():
         #    print row[LAST]
         
         #crunch numbers
-        print 'start'
         change_in_future_2880 = self.change_in_future(2880)
-        plt.plot(range(change_in_future_2880),change_in_future_2880)
-        plt.show()
+        temp_last_array = self.ticker_data[:,LAST]
+        temp_last_array = temp_last_array.astype(numpy.float64)
+        self.make_future_change_plot(temp_last_array, change_in_future_2880)
+        #plt.plot(range(len(change_in_future_2880[0])),change_in_future_2880[0])
+        #plt.show()
         print 'end'
 
+
+    def float_cast(self, ary):
+        ary = numpy.array(ary)
+        return ary.astype(numpy.float64)
+        
+    #make plot of last sell price with future changes shown
+    def make_future_change_plot(self, tkr, change):
+        #plt.plot(range(len(tkr)), tkr)
+        low = self.float_cast(change[0])
+        high = self.float_cast(change[1])
+        low = tkr[0:len(low)] + (tkr[0:len(low)]*low)
+        high = tkr[0:len(high)] + (tkr[0:len(high)]*high)
+        plt.plot(range(len(tkr)), tkr, range(len(low)), low, range(len(high)), high, linewidth=2.0)
+        plt.grid(True)
+        plt.legend(['tkr', 'low', 'high'])
+        plt.show()
+        
     #read data
     def read_file(self, filename):
         num_lines = sum(1 for line in open(filename))
