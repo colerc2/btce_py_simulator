@@ -50,10 +50,19 @@ class SignalAnalysis():
         print 'Done crunching'
 
         #values for this run
+        #indicators have 6 parameters, short, long, sig, period, macd_window, and macd_spread
+        #short - time period for short EMA
+        #long - time period for long EMA
+        #sig - time period for signal line EMA
+        #period - each of the above is taken over a certain time period, period scales each of the above three by a constant
+        #macd_window - when a sell is triggered, i.e. the macd (histogram) crossed over, one more contition must be satisfied
+        #before a sell signal is given. in the last (macd_window) values of the macd the histogram must have had a value larger
+        #than some threshold, which is called the macd_spread
+        
         short = range(11,15)
         long_ = range(22,31)
         sig = (5,16)
-        period = range(10,100,10)#what is this, i don't even know
+        period = range(10,100,10)
         macd_window = range(20,130,10)#what is this, i don't even know
 
 
