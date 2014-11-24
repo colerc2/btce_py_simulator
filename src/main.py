@@ -75,7 +75,7 @@ class SignalAnalysis():
                             #print 'MACD(%d, %d, %d)x%d' % (short[ii], long_[jj], sig[kk], period[ll])
                             macd, macd_line, signal_line = self.moving_average_convergence_divergence(last,
                             short[ii], long_[jj], sig[kk], period[ll])
-                            delta_macd = [0].append(macd[1:] - macd[0:-1])
+                            delta_macd = numpy.append(0, macd[1:] - macd[0:-1])
 
                             #so many variables bro, you should probably make a struct or something man,
                             #stop sucking at coding
@@ -103,7 +103,7 @@ class SignalAnalysis():
                                     else:#if we've flipped to negative
                                         #not sure what the first condition does, but the second condition checks
                                         #to see if the macd filter has settled down yet
-                                        if((count_since_switch > threshold) and (nn > (period(ll) * long_[jj]))):
+                                        if((count_since_switch > threshold) and (nn > (period[ll] * long_[jj]))):
                                             sell_price.append(last[nn])
                                             sell_time.append(self.ticker_data[nn,UPDATED])
                                             if nn > len(change_in_future_2880[0]):
@@ -133,9 +133,8 @@ class SignalAnalysis():
                                         min_since_switch = 0
                             #fuck start here
                             profit_number, spread_thresh, sell_count, per_sale = self.calc_profit_spread(sell_change, sell_spread, 1)
-                            if profit_number != 0:
-                                print '\t\t',
-                            print 'MACD(%d, %d, %d)x%d, %d - %f, %f, %f, %f' % (short[ii], long_[jj], sig[kk], period[ll], macd_window[mm],profit_number, spread_thresh, sell_count, per_sale)
+                            if sell_count > 1:
+                                print 'MACD(%d, %d, %d)x%d, %d - %f, %f, %f, %f' % (short[ii], long_[jj], sig[kk], period[ll], macd_window[mm],profit_number, spread_thresh, sell_count, per_sale)
 
                             
                             
@@ -144,23 +143,22 @@ class SignalAnalysis():
         if len(sell_spread) == 0:
             return (0,0,0,0)
         sell_spread = self.float_cast(sell_spread)
-        for item in sell_spread:
-            print item
-        ix = sell_spread.argsort(sell_spread)
-        ix = numpy.fliplr(ix)
+        change_in_future = self.float_cast(change_in_future)
+        ix = numpy.argsort(sell_spread)
+        ix = ix[::-1]#fliplr
         sell_spread = sell_spread[ix]
         change_in_future = change_in_future[ix]
-
+        
         total_profit = 0
         total_outliers = 0
         slope = 0
         count = 0
         for ii in range(len(ix)):
-            if change_in_future[ii] < -.04:#why is this hardcodedTODO TODO TODO
+            if change_in_future[ii] < -.01:#why is this hardcodedTODO TODO TODO
                 total_profit = total_profit + change_in_future[ii]
                 count = count + 1
             else:
-                if ii == 1:
+                if ii == 0:
                     slope = 0
                 else:
                     slope = sell_spread[ii-1]
@@ -175,17 +173,17 @@ class SignalAnalysis():
         maf = [0] * len(data)
         maf = self.float_cast(maf)
         for ii in range(len(data)):
-            if ii == 1:
+            if ii == 0:
                 maf[ii] = data[ii]
             else:
                 maf[ii] = (alpha * data[ii]) + ((1-alpha) * maf[ii-1])
         return maf
                             
     def moving_average_convergence_divergence(self, data, short, long_, signal, delta_t):
-        short_emaf = self.exponential_moving_average(data, (2/((short+1)*delta_t)))
-        long_emaf = self.exponential_moving_average(data, (2/((long_+1)*delta_t)))
+        short_emaf = self.exponential_moving_average(data, (2.0/((short+1)*delta_t)))
+        long_emaf = self.exponential_moving_average(data, (2.0/((long_+1)*delta_t)))
         macd_line = short_emaf - long_emaf
-        signal_line = self.exponential_moving_average(macd_line, (2/((signal+1) * delta_t)))
+        signal_line = self.exponential_moving_average(macd_line, (2.0/((signal+1) * delta_t)))
         macd = macd_line - signal_line
         return (macd, macd_line, signal_line)
                             
